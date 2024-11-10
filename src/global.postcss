@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+	font-family: 'Grandstander';
+	src: url('/fonts/Grandstander/Grandstander-VariableFont_wght.ttf') format('truetype-variations');
+	font-weight: 100 900;
+	font-stretch: 25% 125%;
+}
+
+html, body {
+	@apply h-full overflow-hidden font-light md:font-medium scrollbar-hide text-[0.92rem] ;
+	@apply bg-gradient-to-tr from-red-300 to-pink-100 dark:from-purple-950 dark:to-pink-800 text-slate-800;
+	outline: none;
+	line-height: 2rem;
+	user-select: none;
+	font-family: "Grandstander", sans, Helvetica;
+	background-image: url('/images/paws.webp'); /* <a href="https://www.freepik.com/free-vector/cute-colorful-kitten-pow-pattern-design_2709577.htm#query=paw%20print&position=3&from_view=keyword&track=ais">Image by starline</a> on Freepik */
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-position: center;
+	/*@apply bg-surface-50-900-token;*/
+	-webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+	overflow-y: hidden;
+	
+}
+body::-webkit-scrollbar {
+	display: none;
+	overflow-y: hidden;
+}
+a {
+	@apply text-primary-800 dark:text-primary-200;
+}
+button:active {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	-webkit-tap-highlight-color: transparent;
+}
+.scrollbar-hide::-webkit-scrollbar {
+	display: none;
+}
+/* For IE, Edge and Firefox */
+.scrollbar-hide {
+	-ms-overflow-style: none;  /* IE and Edge */
+	scrollbar-width: none;  /* Firefox */
+}
+.title {
+    font-size: 1.3rem;
+    font-weight: 200;
+    margin-bottom: 1rem;
+}
+p {
+	margin: 0.5rem 0;
+	font-weight: 300;
+	line-height: 1.7rem
+}
+:root {
+	--theme-rounded-base: 10px;
+	--theme-rounded-container: 4px;
+	--theme-font-family-base: 'Grandstander', sans-serif;
+    --theme-font-family-heading: 'Grandstander', sans-serif;
+}
+*:focus {
+	outline: none
+}
+form input, form select, .form input, .form select {
+	@apply bg-surface-300 bg-opacity-70 dark:bg-opacity-30  ;
+	width: 100%;
+	padding: 0.5rem 1.2rem;
+	
+	border-radius: 0.6rem;
+	
+	font-size: 1rem;
+	border: 3px transparent solid;
+	transition: border 0.2s ease-in;
+}
+form select {
+	padding: 0.8rem;
+	text-align: center;
+}
+form select option, .form select option {
+	text-align: center;
+	padding: 1rem;
+	margin: 12px;
+	font-size: 1.2rem;
+	color: black
+}
+form select::after {
+  content: '\25BC';
+  position: absolute;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+form label, .form label {
+	opacity: 0.75;
+}
+form div button[type="submit"] {
+	padding: 0.7rem 2rem;
+	font-size: 1.2rem;
+	border-radius: 6px;
+}
+form div button[type="submit"]:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+form div button[type="reset"] {
+	padding: 1rem 3rem 1rem 0;
+	font-size: 1.2rem;
+	/* background-color:none;
+	 color:lightsalmon*/
+}
+form button[type="reset"]:hover {
+	/* color:lightcyan */
+}
+input.invalid {
+	border: 3px red solid;
+}
+
+/*
+	background-image:
+		radial-gradient(at 0% 0%, rgba(var(--color-secondary-500) / 0.33) 0px, transparent 50%),
+		radial-gradient(at 98% 1%, rgba(var(--color-error-500) / 0.33) 0px, transparent 50%);
+*/

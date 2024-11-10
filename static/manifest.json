@@ -1,0 +1,32 @@
+{
+    "name": "Furr Buddies",
+    "short_name": "Buddies",
+    "icons":[
+        {
+            "src":"/favicon-32x32.png",
+            "sizes":"64x64",
+            "type":"image/png"
+        },
+        {
+            "src":"/android-chrome-192x192.png",
+            "sizes":"192x192",
+            "type":"image/png"
+        },
+        {
+            "src":"/android-chrome-512x512.png",
+            "sizes":"512x512",
+            "type":"image/png"
+        }
+    ],
+    "id": "about",
+    "start_url": "/splash",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#313A50",
+    "theme_color": "#6376A3",
+    "splash": {
+        "text": "Furr Buddies",
+        "font": "Grandstander"
+    },
+    "description": "A cross-platform app for Pet Owners to manage their furry friends"
+}
