@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import LoadingClock from '$lib/_components/icons/Loading_Clock.svelte';
 	import { appstate } from '$lib/_stores/auth_store.js';
 	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
@@ -18,17 +17,17 @@
     let modalStore = getModalStore();
 
     // "isLoading" type of boolean
-    let _loading: boolean = $state(false);
-    let _registering: boolean = $state(false);
-    let _uploadingPhoto: boolean = $state(false);
+    let _loading = $state<boolean>(true);
+    let _registering = $state<boolean>(false);
+    let _uploadingPhoto = $state<boolean>(false);
 
     // Registration response message
-    let statusMessage: string = '';
+    let statusMessage = $state<string>();
 
     onMount(async ()=>{
         _loading = true;
         try {
-            if(!$appstate.account)
+            if(!$appstate.isSignedIn)
                 await appstate.checkLoggedIn();
         } catch (error: any) {
             console.error(error.message);
@@ -45,7 +44,7 @@
     }
 
     // svelte-forms form and validation = https://chainlist.github.io/svelte-forms/
-    const fname = field('name', '', [required(), min(3)]);
+    const fclinicname = field('clinicname', '', [required(), min(3)]);
     const fregistration = field('registrationID', '', [required(), min(1)]);
     const fhqarea = field('areas', '', [required(), min(1)]);
     const fhqtown = field('towns', '', [required(), min(1)]);
@@ -55,7 +54,7 @@
     const femail = field('email', [$appstate.account?.email], [required(), email()]);
     const fphone = field('phone', [$appstate.account?.prefs?.phoneNumber], [required(), pattern(regexPattern)]);
     const ftc = field('terms', false, [required(), mustBeTrue()]);
-    const newClinicForm = form(fname,fregistration,fhqarea,fhqtown,faddress,fowner_name,fowner_id,femail,fphone,ftc);
+    const newClinicForm = form(fclinicname,fregistration,fhqarea,fhqtown,faddress,fowner_name,fowner_id,femail,fphone,ftc);
 
     const confirmmodal: ModalSettings = {
         type: 'confirm',
@@ -113,12 +112,12 @@
 <!-- HTML head -->
 <svelte:head>
 	<title>{$appSettings.app.name} | Create Clinic</title>
-	<meta name="description" content="Add your health centre to the system" />
+	<meta name="description" content="Add your Veterinary Clinic" />
 </svelte:head>
 
 <!-- HTML body -->
 <main class="px-{data.padding}">
-    {#if $appstate.account && $appstate.account?.emailVerification}
+    {#if !$appstate.isSignedIn } <!-- $appstate.account && $appstate.account.emailVerification} -->
         <p class="mt-0 text-center">
             Please fill in the form
         </p>
@@ -131,9 +130,9 @@
                     <!-- Clinic Name -->
                     <div class="col-span-3">
                         <label class="block mt-6" for="clinicname"> Veterinary Clinic Name</label>
-                        <!-- svelte-ignore a11y-autofocus -->
-                        <input id="clinicname" type="text" autofocus class:invalid={!$fname.valid} placeholder="Name of Clinic"
-                            bind:value="{$fname.value}" />
+
+                        <input id="clinicname" type="text"  class:invalid={!$fclinicname.invalid} placeholder="Name of Clinic"
+                            bind:value={$fclinicname.value} />
                             {#if $newClinicForm.hasError('name.required')}
                                 <p in:fly={{ duration: 500, y: -20 }} out:fly={{ duration: 300, y: -20 }} class="text-gray-300 text-left">Clinic name is required</p>
                             {/if}
@@ -144,7 +143,7 @@
                         <label class="block mt-6" for="registration"> Registration ID</label>
 
                         <input id="registration" type="text" class:invalid={!$fregistration.valid} placeholder="Registration Number"
-                            bind:value="{$fregistration.value}" />
+                            bind:value={$fregistration.value} />
                     </div>
 
                     <!-- Owner Name -->
@@ -204,7 +203,7 @@
                     <!-- Legal -->
                     <section class="col-span-3 p-2 pl-0 flex items-center">
                         <span class="p-4 pl-0">
-                            <input type="checkbox" bind:value={$ftc.value} class="w-6">
+                            <input type="checkbox" bind:checked={$ftc.value} class="w-6">
                         </span>
                         <p class="opacity-50"><a href="/legal/terms/vets#registration">I agree to the terms and conditions concerning Clinic registration and management</a></p>
                         <hr>
@@ -214,19 +213,21 @@
                         {statusMessage}
                     </div>
 
-                <!-- Form Buttons (Clear Form & Submit) -->
+                    <!-- Form Buttons (Clear Form & Submit) -->
 
-                <div class="col-span-3 mt-6 flex justify-between items-center">
-                    <button disabled={!$newClinicForm.dirty} onclick={newClinicForm.reset} type="reset">
-                        Clear Form
-                    </button>
-                    <span class="flex items-center justify-center gap-4">
-                        {#if _uploadingPhoto}<LoadingClock />{/if}
-                        <button disabled={ !$newClinicForm.valid || !$ftc.value || _registering } class="btn variant-filled-warning" type="submit">
-                            {#if _registering}Applying...{:else}Apply{/if}
+                    <div class="col-span-3 mt-6 flex justify-between items-center">
+                        <button disabled={!$newClinicForm.dirty} onclick={newClinicForm.reset} type="reset">
+                            Clear Form
                         </button>
-                    </span>
-                </div>
+                        <span class="flex items-center justify-center gap-4">
+                            {#if _uploadingPhoto}<LoadingClock />{/if}
+
+                            <button disabled={ !$newClinicForm.valid || !$ftc.value || _registering } class="btn variant-filled-warning" type="submit">
+                                {#if _registering}Applying...{:else}Apply{/if}
+                            </button>
+                        </span>
+                    </div>
+                    <div class="spacer"></div>
                 </div>
             </form>
         </section>
@@ -245,4 +246,10 @@
 </main>
 
 <style>
+    .spacer {
+        height: 2rem;
+    }
+    main {
+        margin: 2rem 0;
+    }
 </style>

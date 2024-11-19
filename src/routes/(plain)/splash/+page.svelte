@@ -1,17 +1,20 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import zambian_icon from '$lib/images/zambian_icon.webp';
+
 	import LoadingClock from '$lib/_components/icons/Loading_Clock.svelte';
 	import { Type } from '$lib/_models/pet-model';
-	import { appstate, clinicstate, petstate } from '$lib/_stores/auth_store';
+	import { appstate, clinicstate, petstate, mail } from '$lib/_stores/auth_store';
 	import { appSettings } from '$lib/_stores/settings_store';
 	import { setModeUserPrefers, setModeCurrent, modeCurrent } from '@skeletonlabs/skeleton';
     import { onMount } from 'svelte';
 	import { fade, fly, scale, slide } from 'svelte/transition';
+	import { goto } from '$app/navigation';
 
 
     // Loaders
 	let _loadingVets = $state(false);
 	let _loadingPets = $state(false);
+	let _loadingMail = $state(false);
 
 	let dashboardItems: any = $state([]);
 
@@ -31,11 +34,7 @@
     onMount(async () => {
         console.log('Splash screen...');
 
-        if(!$appstate.account) {
-            await appstate.checkLoggedIn();
-        }
-
-        modeCurrent.set($appSettings.lightMode ? true : false);
+        await appstate.checkLoggedIn();
 
         // Personalize App
         setModeUserPrefers($appstate.account?.prefs.lightMode ?? $appSettings.lightMode);
@@ -47,7 +46,7 @@
         
         console.log(`Landing page done. ${$appstate.isSignedIn}`);
 
-        goto('/', {replaceState: true});
+        goto('/home', {replaceState: true});
     });
 
     async function initializeApp() {
@@ -61,26 +60,30 @@
         await clinicstate.fetch();
         _loadingVets = false;
 
+        _loadingMail = true;
+        await mail.fetch();
+        _loadingMail = false;
+
     }
 </script>
 
 
 <div class="w-full h-full flex flex-col items-center justify-between ">
-    <span>
-        &nbsp;
-    </span>
+    <header>
+        <img src={zambian_icon} alt="Proudly Zambian" width="55">
+    </header>
 
     <div class="flex flex-col items-center">
         <div><img src="/images/FurrPrints.webp" alt="Furr Buddies" class="w-20"></div>
         <!--div><img src="/favicon.png" alt="Furr Buddies" class="w-20"></div-->
-        <h3 in:scale={{ duration: 800, start:0.6 }} class="text-3xl mt-8 p-0">{ $appSettings.app.name }</h3>
+        <h3 in:scale={{ duration: 800, start:0.6 }} class="text-3xl md:text-4xl mt-8 mb-0 p-0">{ $appSettings.app.name }</h3>
         <small class="m-0 p-0">v { $appSettings.app.version }</small>
-        <span><LoadingClock /></span>
+        <span class="mt-4 "><LoadingClock /></span>
     </div>
 
-    <div>
+    <footer>
         <span class="font-normal"><a href="https://appwrite.io" target="appwrite">Appwrite</a> | <a href="https://kit.svelte.dev" target="sveltekit">SvelteKit</a> | <a href="https://skeleton.dev" target="skeletonui">SkeletonUI</a> | <a href="https://simmons.studio" target="simmons">Simmons</a></span>
-    </div>
+    </footer>
     
 </div>
 
@@ -93,5 +96,11 @@
     }
     a:hover {
         text-decoration: underline;
+    }
+    header {
+        margin-top: 1rem;
+    }
+    footer {
+        margin-bottom: 1rem;
     }
 </style>

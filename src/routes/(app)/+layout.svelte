@@ -1,6 +1,7 @@
 <script context="module">
 	import { appstate } from '$lib/_stores/auth_store';
 	import { appSettings } from '$lib/_stores/settings_store';
+	import ViewTransition from '$lib/_components/navigation.svelte';
 </script>
 
 <script lang="ts">
@@ -17,9 +18,9 @@
 
 	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
-    import {AppShell, AppBar, Avatar, LightSwitch, setModeUserPrefers, setModeCurrent, modeCurrent, getModeUserPrefers, getModalStore } from '@skeletonlabs/skeleton';
+    import {AppShell, AppBar, Avatar, LightSwitch, setModeUserPrefers, setModeCurrent, modeCurrent } from '@skeletonlabs/skeleton';
 	import { storePopup, popup } from '@skeletonlabs/skeleton';
-	import type { ModalSettings, ModalComponent, PopupSettings, ModalStore } from '@skeletonlabs/skeleton';
+	import type { ModalComponent, PopupSettings } from '@skeletonlabs/skeleton';
 
 	// Theme features
 	// import { setInitialClassState } from '@skeletonlabs/skeleton';
@@ -40,8 +41,9 @@
 	import RightPage from '$lib/_components/RightPage.svelte';
 	import { getFirstName, removePrefix } from '$lib/_utilities/split-names';
 	import AuthModal from '$lib/_components/AuthModal.svelte';
+	import constants from '$lib/constants';
 
-
+	initializeStores(); 
 
 	// User avatar
 	let imageURL: string = '';
@@ -67,7 +69,7 @@
 		'/legal/terms': 'Terms and Conditions'
 	};
 
-	initializeStores();
+
 
 	const modalRegistry: Record<string, ModalComponent> = {
 		// Set a unique modal ID, then pass the component reference
@@ -79,6 +81,7 @@
 	modeCurrent.set($appSettings.lightMode ? true : false);
 
 	onMount(async ()=>{
+
 		// Personalize App
         setModeUserPrefers($appstate.account?.prefs.lightMode ?? $appSettings.lightMode);
         setModeCurrent($appstate.account?.prefs.lightMode ?? $appSettings.lightMode);
@@ -90,17 +93,11 @@
 			}else{
 				toast.success('Welcome Stranger!');
 			}
-			// await appstate.checkLoggedIn();
-			
-
-			
 			// appstate.updateUserPrefs({'lightMode':$modeCurrent})
 			// Demo of User Prefs as settings
 			// appSettings.setSettings('showCarousel', $appstate.account?.prefs.showCarousel ?? $appSettings.showCarousel)
 		} catch (error) {
-			// console.warn('No signed in User.');
-			toast.error('Hello there Stranger', {icon: '👋🏾'});
-			
+			console.warn('No signed in User. ',error);
 		}
 	});
 
@@ -119,7 +116,7 @@
 			return routes[routeKeys[i]];
 			}
 		}
-		return $appSettings.app.name;
+		return constants.APP_NAME ?? $appSettings.app.name;
 	}
 
 	// Dropdown menu from the avatar icon
@@ -144,6 +141,7 @@
 <!--svelte:head>{@html `<script>(${setInitialClassState.toString()})();</script>`}</svelte:head-->
 <!--svelte:head>{@html `<script>${autoModeWatcher.toString()} autoModeWatcher();</script>`}</svelte:head-->
 
+<ViewTransition/>
 <Modal components={modalRegistry}/>
 
 
@@ -156,14 +154,14 @@ slotSidebarLeft="w-0 md:w-[11rem] h-full scroll-none transition ease-in-out -tra
 		<AppBar background="">
 			<svelte:fragment slot="lead">
 				{#if ['/pets/', '/clinics/', '/mail/'].some(path => $page.url.pathname.startsWith(path))}
-				<button in:slide={{ duration: 300, axis: 'x'}} out:slide={{ duration:200, axis: 'x' }} onclick={()=>{history.back()}}>
+				<button in:slide={{ duration: 300, axis: 'x'}} out:slide={{ duration:200, axis: 'x' }} onclick={()=>{history.go(-1)}}>
 					<BackButton />
 				</button>
 				{/if}
 			</svelte:fragment>
 				<div class="flex justify-between items-center mr-12">
 					<p class="text-xl md:text-2xl font-semibold uppercase">{ getRouteName($page.url.pathname) } </p>
-					<LightSwitch/>
+					<!--LightSwitch/-->
 				</div>
 			<svelte:fragment slot="trail">
 				<button use:popup={popupCloseQuery}>
@@ -201,11 +199,11 @@ slotSidebarLeft="w-0 md:w-[11rem] h-full scroll-none transition ease-in-out -tra
 		</div>
 	</svelte:fragment>
 
+	
 	<div class="flex h-full justify-center">
+		
 		<div class="min-h-full w-full lg:max-w-3xl">
-			<PageTransition key="{$page.url.pathname}">
-				<slot/>
-			</PageTransition>
+			<slot/>
 		</div>
 		<!--div class="hidden p-4 min-h-full xl:block pr-8 bg-gray-800 bg-opacity-10">
 			<RightPage/>
@@ -221,6 +219,18 @@ slotSidebarLeft="w-0 md:w-[11rem] h-full scroll-none transition ease-in-out -tra
 <Toaster position="bottom-center" toastOptions="{{duration: 3600, style: 'position:relative; bottom:4rem'}}"/>
 
 <style>
+	@keyframes move-me{
+		from{ opacity: 1; transform: translateX(2rem);}
+	}
+	@keyframes fade{
+		to{ opacity: 0;}
+	}
+	:view-transition-old(root){
+		animation: 200ms ease-out both fade;
+	}
+	:view-transition-new(root){
+		animation: 200ms ease-out  move-me;
+	}
 	* {
 		user-select: none;
 		-moz-user-select: none;

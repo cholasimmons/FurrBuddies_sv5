@@ -5,37 +5,34 @@
 	import { appSettings } from '$lib/_stores/settings_store.js';
 	import { truncateString } from '$lib/_utilities/text-transform.js';
 	import { onMount } from 'svelte';
+	import toast from 'svelte-french-toast';
 	import { fade } from 'svelte/transition';
 
 
 	let { data } = $props();
 
 	// Loaders
-	let _loading: boolean = $state(true);
+	let _loading: boolean = $state(false);
 	let _fetching: boolean = $state(false);
 	// $: mail = $mail;
 	let email = $mail;
 
 	onMount(async ()=>{
 		_loading = true;
-		try {
-			await appstate.checkLoggedIn();
-			if($appstate.account?.emailVerification){
-				_fetching = true;
-				try {
-					await mail.fetch();
-					_fetching = false;
-				} catch {
-					console.log('Unable to retrieve mail');
-					_fetching = false;
-				}
+		
+		// await appstate.checkLoggedIn();
+		if($appstate.account?.emailVerification){
+			_fetching = true;
+			try {
+				await mail.fetch();
+			} catch(e) {
+				console.error(e);
+				toast.error('Could not retrieve mail');
+			} finally {
+				_fetching = false;
 			}
-			
-			_loading = false;
-		} catch (error) {
-			console.log('Not signed in');
-			_loading = false;
 		}
+		_loading = false;
 	});
 
 	// Manual refresh
@@ -43,8 +40,10 @@
 		_fetching = true;
 		try {
 			await mail.fetch();
-			_fetching = false;
-		} catch (error) {
+		} catch (error:any) {
+			console.error(error);
+			toast.error(error?.message);
+		} finally {
 			_fetching = false;
 		}
 	}
@@ -64,10 +63,12 @@
     <h3 class="title flex justify-between items-center">
         <!-- Left Panel -->
         <div class="flex items-center gap-2">
+			{#if !_loading && $appstate.account?.$id}
                 <button in:fade={{ duration:100, delay:100}} onclick={refreshInbox} disabled={ !$appstate.account?.emailVerification } type="button" class="btn btn-sm variant-ghost">
                     <span class=" flex items-center"><iconify-icon icon="mdi:refresh" class={_fetching ? 'animate-spin' : ''}></iconify-icon></span>
                     <span>Refresh Inbox</span>
                 </button>
+			{/if}
             {#if _loading}<span in:fade={{duration:700}} out:fade={{duration:700}}><LoadingClock/></span>{/if}
         </div>
         
@@ -79,6 +80,7 @@
 		{/if}
     </h3>
 
+	<!-- main -->
 	{#if _loading}
 		<section in:fade={{ duration: 300, delay: 250 }} out:fade={{ duration:200 }} class="text-center mt-16">
 			<div class="flex flex-col items-center justify-center gap-3 pt-12">
@@ -133,7 +135,7 @@
 
 		<div in:fade={{ duration: 300, delay: 250 }} out:fade={{ duration:200 }} class="flex flex-col items-center justify-center gap-3 pt-12">
 			<p class="text-lg">You're missing out!</p>
-			<button onclick={()=>goto('/auth/login')} class="shadow-[0_1rem_1rem_rgba(0,0,0,0.2)] hover:shadow-none btn btn-lg">
+			<button onclick={()=>goto('/auth/login')} class="hover:shadow-[6px_8px_0_rgba(0,0,0,0.2)] btn btn-lg variant-ghost-tertiary">
 				Log in
 			</button>
 		</div>
@@ -156,5 +158,8 @@
 	}
 	dl.list-dl > a > div dd {
 		font-weight: 200;
+	}
+	main {
+		margin: 1rem 0;
 	}
 </style>

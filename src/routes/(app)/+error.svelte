@@ -4,15 +4,17 @@
 
     onMount(()=>{
         setTimeout(()=>{
-            history.back();
-        },2500);
+            
+            history.go(-1);
+        },3000);
     });
     
 </script>
 
 <main>
     <div class="mt-[2rem] flex items-center justify-center text-xl text-center">
-        <span class="font-light">{$page.status}&nbsp;|</span>&nbsp;{$page.error?.message}
+        <span class="font-light">{$page.status}&nbsp;|</span>
+        &nbsp;{$page.error?.message}
     </div>
     
 </main>

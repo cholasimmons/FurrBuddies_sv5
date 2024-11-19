@@ -15,14 +15,16 @@
 	let { data } = $props();
 
 	// Loaders
-	let _loadingVets: boolean = $state(false);
-	let _loadingPets: boolean = $state(false);
+	let _loadingVets = $state<boolean>(false);
+	let _loadingPets = $state<boolean>(false);
 
 	// Activation Email Loader
-	let _sending: boolean = $state(false);
-	let _sent: boolean = $state(false);
+	let _sending = $state<boolean>(false);
+	let _sent = $state<boolean>(false);
 
-	let dashboardItems: any = $state([]);
+	let dashboardItems = $state<any>([]);
+
+	let posts = $state<any>([]);
 
 	let dogCount = $derived(() => $petstate.pets.reduce((count, pet) => (pet.type === Type.DOG ? count + 1 : count), 0));
 	// Using the "@" symbol to activate runes mode for reactivity on object properties
@@ -62,6 +64,12 @@
 				await clinicstate.fetch();
 				_loadingVets = false;
 			}
+
+			posts = [
+				{title: 'Title One', comment: 'Lorem Ipsum...' },
+				{title: 'Title Three', comment: 'Lorem Ipsum...' },
+				{title: 'Title Two', comment: 'Lorem Ipsum...' },
+			];
 			
 			dashboardItems = [
 				{name: 'Dog', value: dogCount, icon: 'mdi:dog', title: 'Dog\'s'},
@@ -166,12 +174,24 @@
 	{:else if $appSettings.showLandingImage}
 		<!-- If no carousel items, display default static landing image -->
 		<div class=" mx-auto w-full max-h-[16rem] rounded-2xl overflow-hidden">
-			<img src={ $appSettings.landingImage } alt="Welcome" class="w-full h-[12rem] md:h-[16rem] object-cover object-center">
+			<img src={ $appSettings.landingImage } alt="Welcome" class="w-full h-[16rem] sm:h-[18rem] object-cover object-center">
 		</div>
 	{/if}
 
+	<section class="grid grid-cols-3  gap-3">
+		<!-- Display posts -->
+		{#each posts as post, index}
+			<div in:fade={{ duration:300, delay: 100*(index+1) }}
+				class="rounded-xl border-2 border-surface-200 p-4 dark:border-surface-800 bg-surface-50 dark:bg-surface-900 h-min">
+				<h4 class="text-xl">{ post.title }</h4>
+				<p>{ post.comment }</p>
+			</div>
+		{/each}
+	</section>
+
 	<!-- "Dashboard" -->
 	<section class="px-{data.padding}">
+		
 
 		<!-- If no signed in User -->
 
@@ -189,7 +209,7 @@
 						</div>
 					</section>
 				{:else}
-					<button onclick={openLoginModal} class="btn btn-lg variant-ghost w-[10rem]">
+					<button onclick={openLoginModal} class="text-lg hover:shadow-[6px_8px_0_rgba(0,0,0,0.2)] btn btn-lg variant-ghost-tertiary w-[10rem]">
 						Log In
 					</button>
 				{/if}
@@ -249,7 +269,13 @@
 		{/if}
 
 		<div class="mt-[2rem] hidden flex-col items-center justify-center transition-transform">
-			<p>{ $clinicstate?.length??0 } Clinics available</p>
+			<p>{ $clinicstate?.length || 0 } Clinics available</p>
 		</div>
 	</section>
 </main>
+
+<style>
+	section {
+		margin: 1rem 0;
+	}
+</style>

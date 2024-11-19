@@ -33,7 +33,7 @@ const createSettingsStore = () => {
         lightMode: false,
         scale: 1,
         showLandingImage: true,
-        landingImage: '/images/welcome.jpg',
+        landingImage: '/images/cover.jpeg', // '/images/welcome.jpg',
         fallback_pet_image: '/images/FurrPrints.webp',
         fallback_pet_icon: '/icons/FurrPrints.svg',
         showCarousel: false,

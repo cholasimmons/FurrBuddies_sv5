@@ -10,7 +10,7 @@
     let { data } = $props();
 
     // "isLoading" type of boolean
-    let _registering: boolean = $state(false);
+    let _registering = $state<boolean>(false);
 
     // Minimum of 6 alphabetic characters with at least 1 uppercase letter
     const regExPattern1 = /^(?=.*[A-Z]).{6,}$/;

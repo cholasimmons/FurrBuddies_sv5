@@ -468,7 +468,8 @@ const createMailState = () => {
   return {
     subscribe,
     fetch: async () => {
-      const userID = get(appstate).account!.$id;
+      const userID = get(appstate).account?.$id;
+      if(!userID)return;
       const role = Role.user(userID,'verified');
       if(!role)return;
   
