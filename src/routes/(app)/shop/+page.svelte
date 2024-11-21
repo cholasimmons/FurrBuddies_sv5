@@ -2,12 +2,12 @@
 	import { goto } from '$app/navigation';
 	import RightPage from '$lib/_components/RightPage.svelte';
 	import LoadingClock from '$lib/_components/icons/Loading_Clock.svelte';
-	import { state } from '$lib/_stores/auth_store.js';
+	import { appstate } from '$lib/_stores/auth_store';
 	import { appSettings } from '$lib/_stores/settings_store.js';
 
-    export let data;
-
     let _loading: boolean = false;
+
+    let { data } = $props();
 </script>
 
 <!-- HTML head -->
@@ -23,15 +23,15 @@
 
         <!-- If logged in -->
 
-        {#if $state.account?.$id && $state.account?.emailVerification}
-        <button on:click|preventDefault={()=>goto('/pets/add')} type="button" class="btn btn-sm variant-ghost-warning">
+        {#if $appstate.account?.$id && $appstate.account?.emailVerification}
+        <button onclick={()=>goto('/pets/add')} type="button" class="btn btn-sm variant-ghost-warning">
             <span class=" flex items-center"><iconify-icon icon="mdi:paw"></iconify-icon></span><span>Add Buddy</span>
         </button>
         {:else}
 
         <!-- If not logged in -->
 
-        <button on:click|preventDefault={()=>goto('/shelters/adopt')} type="button" class="btn btn-sm variant-ghost-success">
+        <button onclick={()=>goto('/shelters/adopt')} type="button" class="btn btn-sm variant-ghost-success">
             <span class=" flex items-center"><iconify-icon icon="mdi:paw"></iconify-icon></span><span>Adopt a Buddy</span>
         </button>
         {/if}
@@ -41,7 +41,7 @@
 
     <!--p>Display goods from established stores and independent (but verified) sellers. Thanks Eva</p-->
 
-    <svelte:component this={RightPage}></svelte:component>
+    <component this={RightPage}></component>
 </main>
 
 <style>

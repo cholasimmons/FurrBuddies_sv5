@@ -2,7 +2,7 @@
 	import { goto } from "$app/navigation";
 	import LoadingClock from "$lib/_components/icons/Loading_Clock.svelte";
 	import { sdk } from "$lib/appwrite.js";
-    import { state } from "$lib/_stores/auth_store.js";
+    import { appstate } from "$lib/_stores/auth_store.js";
 	import { onMount } from "svelte";
     import { form, field } from 'svelte-forms';
     import { required, email, pattern } from 'svelte-forms/validators';
@@ -40,10 +40,10 @@
         
         _verifying = true;
         try {
-            if(!$state.account)
-                await state.checkLoggedIn();
+            if(!$appstate.account)
+                await appstate.checkLoggedIn();
 
-            if($state.account?.emailVerification === true){
+            if($appstate.account?.emailVerification === true){
                 toast.error('Your account is already verified');
                 errormessage = 'Your account is already verified 👌';
                 throw new Error('Account already verified');
@@ -74,7 +74,7 @@
         _verifying2 = true;
         try {
             errormessage = '';
-            if($state.account?.emailVerification === true){
+            if($appstate.account?.emailVerification === true){
                 toast.error('Your account is already verified');
                 errormessage = 'Your account is already verified 👌';
                 _verifying = false;
@@ -115,7 +115,7 @@
         
         {#if !_verifying && _isAuthenticated }<span>Verification complete</span>{/if}
         
-        {#if !_verifying }<span in:scale={{ duration: 300, easing: cubicInOut}}>Account Status: <span class="font-medium { _isAuthenticated ? 'text-success-600' : 'text-error-600'}">{ $state.account?.emailVerification ? 'Verified' : 'Unverified' }</span></span>{/if}
+        {#if !_verifying }<span in:scale={{ duration: 300, easing: cubicInOut}}>Account Status: <span class="font-medium { _isAuthenticated ? 'text-success-600' : 'text-error-600'}">{ $appstate.account?.emailVerification ? 'Verified' : 'Unverified' }</span></span>{/if}
 
         <div class="min-w-[10rem] mt-6 p-8 bg-surface-700 bg-opacity-50 text-center flex flex-col items-center">
             {#if _verifying  }

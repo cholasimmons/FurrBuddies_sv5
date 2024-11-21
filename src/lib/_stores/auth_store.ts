@@ -389,7 +389,7 @@ const createState = () => {
       petstate.init();
       mail.clear();
       userbucketstate.clearPhoto();
-      const session = await sdk.account.createSession(email, password);
+      const session = await sdk.account.createEmailPasswordSession(email, password);
       // await sdk.account.get();
       const initials = sdk.avatars.getInitials();
       userbucketstate.getPreview(session.userId);

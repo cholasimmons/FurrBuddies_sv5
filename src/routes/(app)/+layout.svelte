@@ -18,9 +18,9 @@
 
 	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
-    import {AppShell, AppBar, Avatar, LightSwitch, setModeUserPrefers, setModeCurrent, modeCurrent } from '@skeletonlabs/skeleton';
+    import {AppShell, AppBar, Avatar, } from '@skeletonlabs/skeleton';
 	import { storePopup, popup } from '@skeletonlabs/skeleton';
-	import type { ModalComponent, PopupSettings } from '@skeletonlabs/skeleton';
+	import type { ModalComponent, modeCurrent, PopupSettings } from '@skeletonlabs/skeleton';
 
 	// Theme features
 	// import { setInitialClassState } from '@skeletonlabs/skeleton';
@@ -28,8 +28,6 @@
 
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 
-	
-    import PageTransition from '$lib/_components/Transition.svelte';
 	import Sidebar from '$lib/_components/Sidebar.svelte';
 	import UserSVG from '$lib/_components/icons/UserSVG.svelte';
 	import toast, { Toaster } from 'svelte-french-toast';
@@ -40,8 +38,8 @@
 	import { page } from '$app/stores';
 	import RightPage from '$lib/_components/RightPage.svelte';
 	import { getFirstName, removePrefix } from '$lib/_utilities/split-names';
-	import AuthModal from '$lib/_components/AuthModal.svelte';
 	import constants from '$lib/constants';
+	import LoginModal from '$lib/_components/LoginModal.svelte';
 
 	initializeStores(); 
 
@@ -50,7 +48,7 @@
 	const fallbackImage = '/images/FurrPrints.webp';
 
 	// Routes to display in the AppBar via getRouteName() function below
-	const routes: { [key: string]: string } = {
+	const routeTitles: { [key: string]: string } = {
 		// '/': 'Home',
 		'/pets': 'My Buddies',
 		'/pets/add': 'Add a Buddy',
@@ -70,25 +68,25 @@
 	};
 
 
-
+	// Modal registry to store multiple modal types
 	const modalRegistry: Record<string, ModalComponent> = {
 		// Set a unique modal ID, then pass the component reference
-		authModal: { ref: AuthModal },
-		// ...
+		loginModal: { ref: LoginModal  },
+		// more ...
 	};
 
 
-	modeCurrent.set($appSettings.lightMode ? true : false);
+	// modeCurrent.set($appSettings.lightMode ? true : false);
 
 	onMount(async ()=>{
 
 		// Personalize App
-        setModeUserPrefers($appstate.account?.prefs.lightMode ?? $appSettings.lightMode);
-        setModeCurrent($appstate.account?.prefs.lightMode ?? $appSettings.lightMode);
+        // setModeUserPrefers($appstate.account?.prefs.lightMode ?? $appSettings.lightMode);
+        // setModeCurrent($appstate.account?.prefs.lightMode ?? $appSettings.lightMode);
 
 		try {
 
-			if(!$appstate.account){
+			if($appstate.account?.$id){
 				toast.success('Welcome back '+getFirstName($appstate.account!.name ?? 'User')+'!' );
 			}else{
 				toast.success('Welcome Stranger!');
@@ -103,17 +101,17 @@
 
 		// Function that returns name to display in AppBar, from routes list above
 	function getRouteName(route: string):string {
-		const routeKeys = Object.keys(routes);
+		const routeKeys = Object.keys(routeTitles);
 
 		// Check if the current route is an exact match
-		if (routes.hasOwnProperty(route)) {
-			return routes[route];
+		if (routeTitles.hasOwnProperty(route)) {
+			return routeTitles[route];
 		}
 
 		// Check if the current route is a child of a listed route
 		for (let i = 0; i < routeKeys.length; i++) {
 			if (route.startsWith(routeKeys[i])) {
-			return routes[routeKeys[i]];
+			return routeTitles[routeKeys[i]];
 			}
 		}
 		return constants.APP_NAME ?? $appSettings.app.name;
@@ -133,7 +131,7 @@
 
 	$: imageURL = $userbucketstate.userPhoto?.href ?? '';
 	$: initials = $appstate.initials ?? 'ZM';
-	$: { appstate.updateUserPrefs({'lightMode': $modeCurrent}); }
+	// $: { appstate.updateUserPrefs({'lightMode': $modeCurrent.set(true)}); }
 	
 </script>
 
@@ -159,8 +157,8 @@ slotSidebarLeft="w-0 md:w-[11rem] h-full scroll-none transition ease-in-out -tra
 				</button>
 				{/if}
 			</svelte:fragment>
-				<div class="flex justify-between items-center mr-12">
-					<p class="text-xl md:text-2xl font-semibold uppercase">{ getRouteName($page.url.pathname) } </p>
+				<div class="flex justify-between items-center ">
+					<p class="text-2xl md:text-3xl md:ml-[10rem] lg:mx-auto font-semibold uppercase">{ getRouteName($page.url.pathname) } </p>
 					<!--LightSwitch/-->
 				</div>
 			<svelte:fragment slot="trail">
@@ -202,7 +200,7 @@ slotSidebarLeft="w-0 md:w-[11rem] h-full scroll-none transition ease-in-out -tra
 	
 	<div class="flex h-full justify-center">
 		
-		<div class="min-h-full w-full lg:max-w-3xl">
+		<div class="min-h-full w-full lg:max-w-3xl" id="appslot">
 			<slot/>
 		</div>
 		<!--div class="hidden p-4 min-h-full xl:block pr-8 bg-gray-800 bg-opacity-10">
@@ -220,16 +218,21 @@ slotSidebarLeft="w-0 md:w-[11rem] h-full scroll-none transition ease-in-out -tra
 
 <style>
 	@keyframes move-me{
-		from{ opacity: 1; transform: translateX(2rem);}
+		from{ opacity: 0; transform: translateY(1rem);}
+		to{ opacity: 1; transform: translateY(0);}
 	}
 	@keyframes fade{
+		from{ opacity: 1;}
 		to{ opacity: 0;}
 	}
-	:view-transition-old(root){
+	#appslot {
+		view-transition-name: appslot;
+	}
+	::view-transition-old(appslot){
 		animation: 200ms ease-out both fade;
 	}
-	:view-transition-new(root){
-		animation: 200ms ease-out  move-me;
+	::view-transition-new(appslot){
+		animation: 300ms ease-out 100ms both move-me;
 	}
 	* {
 		user-select: none;
@@ -242,7 +245,7 @@ slotSidebarLeft="w-0 md:w-[11rem] h-full scroll-none transition ease-in-out -tra
 
 
 	#userMenu > button {
-		@apply bg-opacity-80 text-black px-5 py-1 text-left rounded-lg flex items-center gap-2 transition ease-in-out;
+		@apply bg-opacity-80 border-2 text-black px-5 py-1 text-left rounded-lg flex items-center gap-2 transition ease-in-out;
 	}
 	#userMenu > button:hover {
 		@apply bg-opacity-80 -translate-x-1;

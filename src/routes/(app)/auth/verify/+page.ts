@@ -1,4 +1,4 @@
-import { state } from "$lib/_stores/auth_store";
+import { appstate } from "$lib/_stores/auth_store";
 import { redirect } from "@sveltejs/kit";
 import toast from "svelte-french-toast";
 
@@ -7,10 +7,10 @@ export const load = async() => {
 
     try {
         // Check if User is signed in
-        await state.checkLoggedIn();
+        await appstate.checkLoggedIn();
 
         // Check if already verified
-        if(state.checkVerificationStatus()){
+        if(appstate.checkVerificationStatus()){
             toast.success('You are already verified');
             history.back();
             throw new Error('Already verified');

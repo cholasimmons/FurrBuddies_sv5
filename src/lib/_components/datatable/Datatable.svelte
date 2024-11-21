@@ -1,53 +1,50 @@
 <script lang="ts">
 
-    import type { DataHandler, Row } from '@vincjo/datatables';
+    import type { TableHandler, Row } from '@vincjo/datatables';
     import Search from './Search.svelte';
     import RowsPerPage from './RowsPerPage.svelte';
     import Pagination from './Pagination.svelte';
 	import RowCount from './RowCount.svelte';
+	import type { Snippet } from 'svelte';
 
     type T = $$Generic<Row>
 
-    export let handler: DataHandler<T>
-
-    export let search       = true
-    export let rowsPerPage  = true
-    export let rowCount     = true
-    export let pagination   = true
-
     let element: HTMLElement
-    let clientWidth = 576
+    let clientWidth = 576;
 
-    const height = (search || rowsPerPage ? 48 : 8) + (rowCount || pagination ? 48 : 8)
+    
 
-    const triggerChange = handler.getTriggerChange()
-    $: $triggerChange, scrollTop()
+    // const triggerChange = table.getTriggerChange()
+    // $: $triggerChange, scrollTop()
 
-    const scrollTop = () => {
-        if (element) element.scrollTop = 0
-    }
+    // const scrollTop = () => {
+    //     if (element) element.scrollTop = 0
+    // }
+    let { classs, search = true, rowsPerPage = true, rowCount = true, pagination = true, table, children }: { classs?:string; search:boolean; rowsPerPage:boolean; rowCount:boolean; pagination:boolean; table: TableHandler<T>; children:Snippet } = $props();
+
+    const height = (search || rowsPerPage ? 48 : 8) + (rowCount || pagination ? 48 : 8);
 </script>
 
-<section bind:clientWidth class={$$props.class ?? ''}>
+<section bind:clientWidth class={classs}>
     <header class:container={search || rowsPerPage}>
         {#if search}
-            <Search {handler} />
+            <Search {table} />
         {/if}
         {#if rowsPerPage}
-            <RowsPerPage {handler} small={clientWidth < 600} />
+            <RowsPerPage {table} small={clientWidth < 600} />
         {/if}
     </header>
 
     <article bind:this={element} style="height:calc(100% - {height}px)">
-        <slot />
+        {@render children()}
     </article>
 
     <footer class:container={rowCount || pagination} class="w-full bg-surface-300 dark:bg-surface-800">
         {#if rowCount}
-            <RowCount {handler} small={clientWidth < 576} />
+            <RowCount {table} small={clientWidth < 576} />
         {/if}
         {#if pagination}
-            <Pagination {handler} small={clientWidth < 576} />
+            <Pagination {table} small={clientWidth < 576} />
         {/if}
     </footer>
 </section>

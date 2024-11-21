@@ -34,11 +34,12 @@
         try {
             await appstate.login($femail.value, $fpassword.value);
             goto('/');
-            _authenticating = false;
         } catch (error: any) {
             // state.alert({ color: "red", message: error.message });
             toast.error(error.message);
-            console.log(error.message);
+            console.error(error);
+            
+        } finally {
             _authenticating = false;
         }
     };
@@ -69,7 +70,7 @@
             <!-- User Email-->
 
                 <label class="block mt-6" for="email"> Email</label>
-                <!-- svelte-ignore a11y-autofocus -->
+                <!-- svelte-ignore a11y_autofocus -->
                 <input id="email" type="text" class:invalid={!$femail.valid} placeholder="yourname@email.add"
                     bind:value="{$femail.value}"/>
                     {#if !$femail.valid && $femail.value}

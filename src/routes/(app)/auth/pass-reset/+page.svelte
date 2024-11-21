@@ -8,10 +8,10 @@
 	import toast from 'svelte-french-toast';
 	import { fly } from 'svelte/transition';
 
-    export let data;
+    let { data } = $props();
 
     // "isLoading" type of boolean
-    let _resetting: boolean = false;
+    let _resetting = $state(false);
 
     // Minimum of 6 alphabetic characters with at least 1 uppercase letter
     const regExPattern1 = /^(?=.*[A-Z]).{6,}$/;
@@ -31,9 +31,13 @@
         if (!$resetForm.valid) {
             return;
         }
+        if($fpassword.value !== $fpassword2.value){
+            return;
+        }
+
         try {
             _resetting = true;
-            await sdk.account.updateRecovery($page.params.userId,$page.params.secret,$fpassword.value, $fpassword2.value)
+            await sdk.account.updateRecovery($page.params.userId,$page.params.secret,$fpassword.value)
             toast.loading('Your password has been changed!');
             resetForm.reset();
             goto("/");
@@ -61,7 +65,7 @@
     <section class="flex justify-center">
         <div class="flex-grow flex flex-col max-w-lg justify-center">
 
-            <form on:submit|preventDefault={resetPassword}>
+            <form onsubmit={resetPassword}>
 
             <!-- User Password-->
 
@@ -88,7 +92,7 @@
             <!-- Form Buttons (Clear Form & Submit) -->
 
                 <div class="mt-6 flex justify-between">
-                    <button disabled={!$resetForm.dirty} on:click={resetForm.reset} type="reset">
+                    <button disabled={!$resetForm.dirty} onclick={resetForm.reset} type="reset">
                         Clear Form
                     </button>
                     <button disabled={!($resetForm.valid && $fpassword.value) || _resetting} class="btn btn-sm variant-filled-warning" type="submit">

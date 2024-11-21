@@ -1,19 +1,17 @@
 <script lang="ts">
-    import type { DataHandler, Row } from '@vincjo/datatables'
+    import type { TableHandler, Row } from '@vincjo/datatables'
 
     type T = $$Generic<Row>
 
-    export let handler: DataHandler<T>
-    let value = ''
+    export let table: TableHandler<T>
+    let value = '';
+    const search = table.createSearch()
 </script>
 
-<input
-    class={$$props.class ?? 'py-4'}
-    bind:value
-    placeholder={handler.i18n.search}
-    spellcheck="false"
-    on:input={() => handler.search(value)}
-/>
+{#snippet header()}
+    <input type="text" bind:value={search.value} oninput={() => search.set()}
+    placeholder={table.i18n.search} spellcheck="false" class={$$props.class ?? 'py-4'}>
+{/snippet}
 
 <style>
     input {

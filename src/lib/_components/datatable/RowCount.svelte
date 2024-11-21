@@ -1,29 +1,29 @@
 <script lang="ts">
-    import type { DataHandler, Row } from '@vincjo/datatables'
+    import type { TableHandler, Row } from '@vincjo/datatables'
+	import Th from './Th.svelte';
 
     type T = $$Generic<Row>
 
-    export let handler: DataHandler<T>
-    export let small = false
-    const rowCount = handler.getRowCount()
+    let { styleclass, small, table }:{ styleclass?:string, small:boolean, table:TableHandler<T>} = $props();
+    const { start, end, total } = $derived(table.rowCount);
 </script>
 
-<aside class={$$props.class ?? ''}>
+<aside class={styleclass}>
     {#if small}
-        {#if $rowCount.total > 0}
-            <b>{$rowCount.start}</b>-
-            <b>{$rowCount.end}</b>/
-            <b>{$rowCount.total}</b>
+        {#if total > 0}
+            <b>{start}</b>-
+            <b>{end}</b>/
+            <b>{total}</b>
         {:else}
-            {handler.i18n.noRows}
+            {table.i18n.noRows}
         {/if}
-    {:else if $rowCount.total > 0}
-        {@html (handler.i18n.rowCount??'')
-            .replace('{start}', `<b>${$rowCount.start}</b>`)
-            .replace('{end}', `<b>${$rowCount.end}</b>`)
-            .replace('{total}', `<b>${$rowCount.total}</b>`)}
+    {:else if total > 0}
+        {@html (table.i18n.rowCount??'')
+            .replace('{start}', `<b>${start}</b>`)
+            .replace('{end}', `<b>${end}</b>`)
+            .replace('{total}', `<b>${total}</b>`)}
     {:else}
-        {handler.i18n.noRows}
+        {table.i18n.noRows}
     {/if}
 </aside>
 

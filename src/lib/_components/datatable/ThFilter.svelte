@@ -1,25 +1,22 @@
 <script lang="ts">
-    import type { DataHandler, FilterBy, Comparator, Row } from '@vincjo/datatables'
+    import type { TableHandler, Row } from '@vincjo/datatables'
 
     type T = $$Generic<Row>
 
-    export let handler: DataHandler<T>
-    export let filterBy: FilterBy<T>
-    export let align: 'left' | 'right' | 'center' = 'left'
-    export let comparator: Comparator<T>|undefined = undefined;
-
-    let value: string = ''
+    let value: string = $state('');
+    let { classs, table, filterBy, align = "left" }: { classs:string; table: TableHandler; filterBy:string; align:'left' | 'right' | 'center' } = $props();
+    const filter = table.createFilter(filterBy);
 </script>
 
-<th class={$$props.class ?? ''}>
+<th class={classs ?? ''}>
     <input
         style:text-align={align}
         type="text"
         placeholder="Filter..."
         spellcheck="false"
-        class="bg-transparent px-4 py-1 font-medium"
-        bind:value
-        on:input={() => handler.filter(value, filterBy, comparator)}
+        class="bg-transparent px-4 py-1 font-medium "
+        bind:value={filter.value}
+        oninput={() => filter.set()}
     />
 </th>
 

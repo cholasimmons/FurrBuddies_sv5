@@ -1,16 +1,20 @@
 <script context="module">
-	import { modeCurrent } from '@skeletonlabs/skeleton';
+	import '../global.postcss';
+	import { modeCurrent, setModeCurrent, setModeUserPrefers } from '@skeletonlabs/skeleton';
 	
+	// Set initial dark mode
 	modeCurrent.set(false);
+	setModeUserPrefers(false);
+    setModeCurrent(false);
 </script>
 
 <script lang="ts">
-	import '../global.postcss';
+	import "iconify-icon";
 	import { goto } from '$app/navigation'; // Redirect to the landing page when the app loads
 	import { onMount } from 'svelte';
 	
 	onMount(() => {
-		goto('/splash', {replaceState: true});
+		goto('/', {replaceState: true});
 		
 		// Check session storage to see if splash page has been visited
         // if (!sessionStorage.getItem('visitedSplash')) {

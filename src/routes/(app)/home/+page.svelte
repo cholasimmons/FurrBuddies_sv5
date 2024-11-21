@@ -10,7 +10,7 @@
 	import { getFirstName } from '$lib/_utilities/split-names';
 	import { appSettings } from '$lib/_stores/settings_store.js';
 	import { cubicInOut } from 'svelte/easing';
-	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
+	import { getModalStore, LightSwitch, type ModalSettings } from '@skeletonlabs/skeleton';
 
 	let { data } = $props();
 
@@ -94,7 +94,7 @@
 	function openLoginModal() {
 		const modal: ModalSettings = {
 			type: 'component',
-			component: 'authModal',
+			component: 'loginModal',
 			// type: 'prompt',
 			// // Data
 			// title: 'Login',
@@ -106,7 +106,6 @@
 			response: (r: string) => console.log('response:', r),
 		};
 		modalStore.trigger(modal);
-		
 	}
 
 
@@ -178,6 +177,7 @@
 		</div>
 	{/if}
 
+	{#if false}
 	<section class="grid grid-cols-3  gap-3">
 		<!-- Display posts -->
 		{#each posts as post, index}
@@ -188,6 +188,7 @@
 			</div>
 		{/each}
 	</section>
+	{/if}
 
 	<!-- "Dashboard" -->
 	<section class="px-{data.padding}">

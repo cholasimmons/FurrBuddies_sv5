@@ -1,29 +1,26 @@
 <script lang="ts">
-    import type { DataHandler, Row } from '@vincjo/datatables'
+    import type { TableHandler, Row } from '@vincjo/datatables'
 
     type T = $$Generic<Row>
 
-    export let handler: DataHandler<T>
-    export let small = false
-
-    const rowsPerPage = handler.getRowsPerPage()
-
-    const options = [5, 10, 20, 40]
+    const { classs, small, table }:{ classs?:string; small:boolean; table:TableHandler<T> } = $props();
+    const options = [5, 10, 20, 40];
+    let rowsPerPage = $derived(() => table.rowsPerPage);
+    
 </script>
 
-<aside class={'dark:text-surface-300 text-surface-700 '+ $$props.class ?? ''}>
+<aside class={'dark:text-surface-300 text-surface-700 '+ classs }>
     {#if !small}
-        <span>{handler.i18n.show}</span>
+        <span>{table.i18n.show}</span>
     {/if}
-    <select bind:value={$rowsPerPage} on:change={() => handler.setPage(1)}>
-        {#each options as option}
-            <option value={option}>
-                {option}
-            </option>
+    <select bind:value={table.rowsPerPage} onchange={() => table.setPage(1)}>
+        {#each [5, 10, 20, 50] as option}
+            <option value={option}>{option}</option>
         {/each}
     </select>
+
     {#if !small}
-        <span>{handler.i18n.entries}</span>
+        <span>{table.i18n.entries}</span>
     {/if}
 </aside>
 

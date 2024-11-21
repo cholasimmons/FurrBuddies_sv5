@@ -20,24 +20,24 @@
     import { BarChartSimple } from "@carbon/charts-svelte";
 
     // Vincjo Datatables stuff
-    import { Datatable as DataHandler } from '@vincjo/datatables';
-    import Datatable from '$lib/_components/datatable/Datatable.svelte';
+    import { Datatable, TableHandler } from '@vincjo/datatables';
+    import DataTableComp from '$lib/_components/datatable/Datatable.svelte';
     import ThFilter from '$lib/_components/datatable/ThFilter.svelte';
     import Th from '$lib/_components/datatable/Th.svelte';
     import { groomData, sourceData } from './data'
 	import { appSettings } from '$lib/_stores/settings_store';
 
-    const handler = new DataHandler(groomData)
-    const rows = handler.getRows()
+    const table = new TableHandler(groomData, {rowsPerPage: 10})
+    const rows = table.rows;
 
     let { data } = $props();
-    let bud: IPet;
+    let bud:IPet|undefined = $state();
     let imageURL: string = '/icons/FurrPrints.svg';
-    let QRcodeURL: string = '';
+    let QRcodeURL: string = $state('');
     let hasPhoto: boolean = false;
 
     //Loaders
-    let _finding: boolean = true;
+    let _finding = $state<boolean>(true);
 
     let modalStore = getModalStore();
 
@@ -80,7 +80,7 @@
             // Pass a reference to your custom component
             ref: ImageViewComponent,
             // Add the component properties as key/value pairs
-            props: {ids: bud.photoID, name: bud.name},
+            props: {ids: bud?.photoID, name: bud?.name},
             // Provide a template literal for the default component slot
             // slot: undefined
         };
@@ -100,7 +100,7 @@
             // Pass a reference to your custom component
             ref: QRViewComponent,
             // Add the component properties as key/value pairs
-            props: {id: bud.$id},
+            props: {id: bud?.$id},
             // Provide a template literal for the default component slot
             // slot: undefined
         };
@@ -180,7 +180,7 @@
             // Returns the updated response value
             response: async (r: string) => {
                 // Verify input name and pet's name are the same, then delete pet
-                if(r !== bud.name)return;
+                if(r !== bud?.name)return;
                 await petstate.removePet(bud);
                 toast.success(bud.name+' was removed.');
                 goto('/pets');
@@ -198,7 +198,7 @@
         placement: 'left'
     };	
 
-    $: buddy = bud;
+    let buddy = $derived(() => { bud });
 </script>
 
 <!-- HTML head -->
@@ -219,28 +219,28 @@
                 </div>
             {:else}
                 <span in:fade={{duration:200, delay:250}}>
-                    <BuddyCard photoID={ buddy.photoID?.[0] } petName={ buddy.name } />
+                    <BuddyCard photoID={ bud?.photoID?.[0] } petName={ buddy.name } />
                 </span>
             {/if}
         </button>
 
-        <span on:click={ viewQR } on:keypress class="absolute top-1 ml-44 hover:scale-105 origin-center transition-transform ease-out">
+        <button onclick={ viewQR } class="absolute top-1 ml-44 hover:scale-105 origin-center transition-transform ease-out">
             <Avatar src={ QRcodeURL } initials="QR" class="cursor-pointer border-2 border-surface-700 dark:border-surface-300"/>
-        </span>
+        </button>
     </div>
 
     <!-- Buddy's Profile -->
     <section class="text-lg xl:text-2xl mt-[12rem] text-center px-{data.padding}">
-        { #if buddy?.dob }<p in:fade={{duration:300}} class="m-0 text-500 flex items-center justify-center">
+        {#if bud?.dob }<p in:fade={{duration:300}} class="m-0 text-500 flex items-center justify-center">
             <iconify-icon icon="mdi:calendar" type="date" class="mr-2 opacity-60"></iconify-icon>
-            <small title={ 'Born: '+(buddy?.dob).toString() }>{ monthsToYears(calculateAge(buddy?.dob??'')) }</small></p>
+            <small title={ 'Born: '+(bud.dob).toString() }>{ monthsToYears(calculateAge(bud?.dob??'')) }</small></p>
         {/if}
         
 
         <div class="flex justify-between md:justify-evenly py-4 px-12 md:p-6 my-4 text-base md:text-xl  bg-gradient-to-r from-transparent via-tertiary-800  to-transparent">
-            <p class="m-0 flex items-center gap-3"><span><iconify-icon icon="mdi:paw" type="dog"></iconify-icon> </span>{ buddy?.type || 'N/A' }</p>
-            <p class="m-0 flex items-center gap-3"><span><iconify-icon icon="ph:gender-intersex-bold" type="gender"></iconify-icon> </span>{ buddy?.gender ?? 'N/A' }</p>
-            <p class="m-0 flex items-center gap-3"><span><iconify-icon icon="material-symbols:genetics" type="breed"></iconify-icon> </span>{ buddy?.breed ?? 'N/A' }</p>        
+            <p class="m-0 flex items-center gap-3"><span><iconify-icon icon="mdi:paw" type="dog"></iconify-icon> </span>{ bud?.type || 'N/A' }</p>
+            <p class="m-0 flex items-center gap-3"><span><iconify-icon icon="ph:gender-intersex-bold" type="gender"></iconify-icon> </span>{ bud?.gender ?? 'N/A' }</p>
+            <p class="m-0 flex items-center gap-3"><span><iconify-icon icon="material-symbols:genetics" type="breed"></iconify-icon> </span>{ bud?.breed ?? 'N/A' }</p>        
         </div>
 
     </section>
@@ -266,23 +266,23 @@
             <!--p><button use:popup={popupClick} type="button" class="btn btn-sm variant-ghost-warning">Sort</button></p-->
         </div>
 
-        <Datatable {handler}>
+        <Datatable basic {table}>
             <table>
                 <thead>
                     <tr class="bg-tertiary-300 dark:bg-tertiary-600 border-none">
-                        <Th {handler} orderBy="appointment_date">Appointment</Th>
-                        <Th {handler} orderBy="groomer_name">Groomer</Th>
-                        <Th {handler} orderBy="venue">Venue</Th>
+                        <Th {table} orderBy="appointment_date">Appointment</Th>
+                        <Th {table} orderBy="groomer_name">Groomer</Th>
+                        <Th {table} orderBy="venue">Venue</Th>
                     </tr>
-                    <tr class=" bg-opacity-60 bg-tertiary-400 dark:bg-tertiary-800">
-                        <ThFilter {handler} filterBy="appointment_date"/>
-                        <ThFilter {handler} filterBy="groomer_name" />
-                        <ThFilter {handler} filterBy="venue"/>
-                    </tr>
+                    <!-- <tr class=" bg-opacity-60 bg-tertiary-400 dark:bg-tertiary-800">
+                        <ThFilter {table} filterBy="appointment_date"/>
+                        <ThFilter {table} filterBy="groomer_name" />
+                        <ThFilter {table} filterBy="venue" />
+                    </tr> -->
                 </thead>
                 <tbody class="bg-tertiary-200 dark:bg-tertiary-900">
-                    {#each $rows as row}
-                        <tr on:click={()=>{console.log(row)}} class="cursor-pointer hover:bg-tertiary-300 hover:dark:bg-tertiary-800">
+                    {#each rows as row}
+                        <tr onclick={()=>{console.log(row)}} class="cursor-pointer hover:bg-tertiary-300 hover:dark:bg-tertiary-800">
                             <td>{row.appointment_date.toLocaleDateString()}</td>
                             <td>{row.groomer_name}</td>
                             <td>{row.venue}</td>
@@ -321,8 +321,8 @@
 
 
     <section class="surface-300 flex justify-evenly py-12 px-{data.padding}">
-        <button class="btn variant-ghost-success hover:bg-green-700" on:click={editBuddy}>Edit {bud?.name || 'Buddy'}</button>
-        <button class="btn variant-ghost-warning hover:bg-red-600" on:click={removeBuddy}>Delete {bud?.name || 'Buddy'}</button>
+        <button class="btn variant-ghost-success hover:bg-green-700" onclick={editBuddy}>Edit {bud?.name || 'Buddy'}</button>
+        <button class="btn variant-ghost-warning hover:bg-red-600" onclick={removeBuddy}>Delete {bud?.name || 'Buddy'}</button>
     </section>
 
 </main>
@@ -332,7 +332,7 @@
 	<p><button type="button" class="btn variant-filled-secondary">Date</button></p>
 	<p><button type="button" class="btn variant-filled-error">Medication</button></p>
 	<p><button type="button" class="btn variant-filled-success">Appointment</button></p>
-	<div class="arrow variant-filled-tertiary" />
+	<div class="arrow variant-filled-tertiary" ></div>
 </div>
 
 

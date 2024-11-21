@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { petbucketstate, petstate, state, userbucketstate } from "$lib/_stores/auth_store";
-	import { Avatar, modalStore } from "@skeletonlabs/skeleton";
+	import { petbucketstate, petstate, appstate, userbucketstate } from "$lib/_stores/auth_store";
+	import { Avatar, getModalStore } from "@skeletonlabs/skeleton";
 	import { field, form } from "svelte-forms";
 	import toast from "svelte-french-toast";
 	import type { Models } from "appwrite";
@@ -33,9 +33,9 @@
 
     onMount(async ()=>{
         try {
-            const file: URL|undefined = await petbucketstate.getPreview(buddy?.photoID?.[0]??'');
+            const file: string|undefined = await petbucketstate.getPreview(buddy?.photoID?.[0]??'');
             if(!file) return;
-            imageURL = file!.href;
+            imageURL = file;
         } catch (error) {
             console.log('Couldn\'t retrieve image');
         }
@@ -74,7 +74,7 @@
             }
             await petstate.updatePet(buddy, body);
             
-            modalStore.clear();
+            getModalStore().clear();
             editBuddyForm.clear();
             toast.success(buddy.name + '\'s profile has been updated!',{icon: _photoSuccess ? '📸' : ''});
             await petstate.fetch();
@@ -113,10 +113,12 @@
     <div class=" bg-surface-400 dark:bg-slate-800 p-6 rounded-2xl mx-auto w-full sm:w-3/4 lg:w-[48rem]">
         <h3 class="title">Edit { buddy.name }'s Details</h3>
 
-        <form on:submit|preventDefault={submitEditedForm}>
+        <form onsubmit={submitEditedForm}>
             <div class="mb-8 grid grid-cols-3 gap-3">
-                <div on:click={()=>document.getElementById('uploader')?.click()} on:keypress class="col-span-3 flex flex-col gap-2 items-center justify-center rounded-xl p-6 bg-opacity-10 hover:bg-surface-800">
-                    <input type="file" id="uploader" bind:value={$ffile.value} accept="image/*" style="display:none" on:change={onChangeHandler}/>
+                <!-- svelte-ignore a11y_unknown_aria_attribute -->
+                <div onclick={()=>document.getElementById('uploader')?.click()} onkeypress={()=>{console.log('key down')}}
+                    role="button" tabindex="0" class="col-span-3 flex flex-col gap-2 items-center justify-center rounded-xl p-6 bg-opacity-10 hover:bg-surface-800">
+                    <input type="file" id="uploader" bind:value={$ffile.value} accept="image/*" style="display:none" onchange={onChangeHandler}/>
                     
                     {#if photofile || buddy.photoID?.[0] !== ''}
                         <div class="w-32 h-32 rounded-full overflow-hidden border-2 " id="imagePreview">
@@ -128,7 +130,7 @@
 
                     <div class="flex flex-col md:flex-row justify-evenly items-center gap-6">
                         <span>Click here to upload an image</span>
-                        <span hidden={!photofile}><button on:click={()=>photofile=undefined} class="btn variant-ghost-surface" type="button"><iconify-icon icon="mdi:close" class="mr-2"></iconify-icon>Remove image</button> </span>
+                        <span hidden={!photofile}><button onclick={()=>photofile=undefined} class="btn variant-ghost-surface" type="button"><iconify-icon icon="mdi:close" class="mr-2"></iconify-icon>Remove image</button> </span>
                     </div>
                 </div>
                 
@@ -182,7 +184,7 @@
             </div>
             
             <section class="flex justify-end gap-3">
-                <button type="button" class="btn btn-lg" on:click={()=>modalStore.close()}>Cancel</button>
+                <button type="button" class="btn btn-lg" onclick={()=>getModalStore().close()}>Cancel</button>
                 <button disabled={ !($editBuddyForm.valid) || _saving } type="submit" class="btn btn-lg variant-filled-secondary">{ _saving ? _uploadingPhoto ? 'Uploading...' : 'Saving...' : 'Save'}</button>
             </section>
         </form>

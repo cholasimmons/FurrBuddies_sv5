@@ -10,10 +10,7 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
-		"lint": "prettier --check . && eslint .",
-		"db:push": "drizzle-kit push",
-		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
+		"lint": "prettier --check . && eslint ."
 	},
 	"devDependencies": {
 		"@carbon/charts-svelte": "^1.22.0",
@@ -32,7 +29,6 @@
 		"@vincjo/datatables": "^2.0.5",
 		"appwrite-cli": "^6.1.0",
 		"autoprefixer": "^10.4.20",
-		"drizzle-kit": "^0.22.0",
 		"eslint": "^9.7.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-svelte": "^2.36.0",
@@ -51,15 +47,10 @@
 	},
 	"dependencies": {
 		"@floating-ui/dom": "^1.6.12",
-		"@node-rs/argon2": "^1.1.0",
-		"@oslojs/crypto": "^1.0.1",
-		"@oslojs/encoding": "^1.1.0",
 		"appwrite": "^16.0.2",
-		"drizzle-orm": "^0.33.0",
 		"iconify-icon": "^2.1.0",
 		"node-appwrite": "^14.1.0",
 		"postcss": "^8.4.47",
-		"postgres": "^3.4.4",
 		"svelte-forms": "^2.3.1",
 		"svelte-french-toast": "^1.2.0"
 	}

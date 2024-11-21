@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-    import { state } from "$lib/_stores/auth_store.js";
-	import { appSettings } from "$lib/_stores/settings_store.js";
+    import { appstate } from "$lib/_stores/auth_store";
 	import { onMount } from "svelte";
 
     export let data;
@@ -16,7 +15,7 @@
         try {
             timerId = setTimeout(async ()=>{
                 _loading = false;
-                await state.logout();
+                await appstate.logout();
                 // Return User to previous page upon successful logout;
                 clearTimeout(timerId);
                 goto("/splash", {replaceState: true});
